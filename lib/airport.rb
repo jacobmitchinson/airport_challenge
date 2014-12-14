@@ -9,7 +9,7 @@ class Airport
   DEFAULT_CAPACITY = 6
 
   def initialize
-    @planes ||= []
+    @planes ||= [] 
     @capacity ||= DEFAULT_CAPACITY
   end
 
@@ -18,14 +18,14 @@ class Airport
   end
 
   def land(plane)
-    raise "You can't land in the middle of storm!" if stormy?
+    raise "You can't land in the middle of storm!" if weather == 'stormy'
     raise 'Airport is full' if full?
     plane.landed
     @planes << plane 
   end
 
   def take_off(plane)
-    raise "You can't take off in the middle of a storm!" if stormy?
+    raise "You can't take off in the middle of a storm!" if weather == 'stormy'
     plane.take_off
     plane.in_air
     @planes.delete(plane)

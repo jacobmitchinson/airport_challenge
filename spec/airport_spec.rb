@@ -1,5 +1,6 @@
 require 'airport'
 require 'plane'
+require 'weather_module'
 
 # A plane currently in the airport can be requested to take off.
 #
@@ -10,31 +11,29 @@ require 'plane'
 
 describe Airport do
 
-  let(:plane) { Plane.new }
+  let(:plane) { double :plane }
   let(:airport) { Airport.new }
 
   context 'taking off and landing' do
 
     it 'a plane can land' do
-      plane = double :plane
-      allow(airport).to receive(:stormy?)
+      allow(airport).to receive(:weather)
       allow(plane).to receive(:landed)
       expect{airport.land(plane)}.to change{airport.count_planes}.by 1
     end
 
     it 'a plane can take off' do
-      allow(airport).to receive(:stormy?)
-      plane = double :plane
+      allow(airport).to receive(:weather)
       expect{airport.take_off(plane)}
     end
+
   end
 
   context 'traffic control' do
 
     it 'a plane cannot land if the airport is full' do
-      plane = double :plane
       allow(plane).to receive(:landed)
-      allow(airport).to receive(:stormy?)
+      allow(airport).to receive(:weather)
       6.times { airport.land(plane) }
       expect(lambda { airport.land(plane) }).to raise_error(RuntimeError, 'Airport is full')
     end
@@ -50,12 +49,12 @@ describe Airport do
     context 'weather conditions' do
 
       it 'a plane cannot take off when there is a storm brewing' do
-        allow(airport).to receive(:stormy?).and_return(true)
+        allow(airport).to receive(:weather).and_return('stormy')
         expect(lambda { airport.take_off(plane) }).to raise_error(RuntimeError, "You can't take off in the middle of a storm!")
       end
 
       it 'a plane cannot land in the middle of a storm' do
-        allow(airport).to receive(:stormy?).and_return(true)
+        allow(airport).to receive(:weather).and_return('stormy')
         expect(lambda { airport.land(plane) }).to raise_error(RuntimeError, "You can't land in the middle of storm!")
       end
     end
@@ -71,7 +70,6 @@ end
 describe Plane do
 
   let(:plane) { Plane.new }
-  let(:airport) { Airport.new }
 
   it 'has a flying status when created' do
     expect(plane.status).to eq "flying"
@@ -88,13 +86,13 @@ describe Plane do
   end
 
   it 'changes its status to flying after taking of' do
-    allow(airport).to receive(:stormy?)
+    airport = double(take_off: plane.in_air)
     airport.take_off(plane)
     expect(plane.status).to eq "flying"
   end
 
   it 'changes its status to landed after landing' do 
-    allow(airport).to receive(:stormy?)
+     airport = double(land: plane.landed)
     airport.land(plane)
     expect(plane.status).to eq "landed"
   end
@@ -107,22 +105,32 @@ end
 # Check when all the planes have landed that they have the right status "landed"
 # Once all the planes are in the air again, check that they have the status of flying!
 
-describe "The gand finale (last spec)" do
+describe "the grand finale (last spec)" do
 
   let(:plane)  {Plane.new}
   let(:airport) { Airport.new }
 
  
   it 'all planes can land and all planes can take off' do
-    allow(airport).to receive(:stormy?).and_return(false)
-    6.times { airport.land(plane) } 
-    expect(all_status_landed?(airport)).to be true 
+    allow(airport).to receive(:weather).and_return('sunny')
+    land_six_planes
     all_planes_take_off(airport.all_planes, airport)
     expect(airport.count_planes).to eq(0)
   end
 
+  it 'all planes should have status landed' do
+    allow(airport).to receive(:weather).and_return('sunny')
+    land_six_planes
+    all_planes_take_off(airport.all_planes, airport)
+    expect(all_status_landed?(airport)).to be true
+  end
 
   # helper methods
+
+  def land_six_planes
+    6.times { airport.land(plane) } 
+  end
+
 
   def all_status_landed?(airport)
     airport.all_planes.all? do 
@@ -142,4 +150,25 @@ describe "The gand finale (last spec)" do
     end
   end
 end
+
+describe Weather do 
+
+  class WeatherModule; include Weather; end
+
+  let(:weather_test) { WeatherModule.new}
+
+
+  it 'should return stormy' do
+    allow(weather_test).to receive(:random_number).and_return(1)
+    expect(weather_test.weather).to eq 'stormy'
+  end
+
+  it 'should return sunny' do 
+    allow(weather_test).to receive(:random_number).and_return(5)
+    expect(weather_test.weather).to eq 'sunny'
+  end
+
+end
+
+
 

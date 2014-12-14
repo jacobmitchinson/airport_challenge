@@ -1,8 +1,13 @@
 module Weather
 
-  def stormy?
+  def weather
     # it is either sunny or stormy
-    rand(10) == 1 ? true : false
+    random_number == 1 ? 'stormy' : 'sunny'
+  end
+
+  # for test purposes
+  def random_number
+    rand(10)
   end
 
 end
