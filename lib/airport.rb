@@ -5,10 +5,12 @@ class Airport
   include Weather
 
   attr_accessor :capacity 
+  attr_accessor :flying_planes
   
   DEFAULT_CAPACITY = 6
 
   def initialize
+    @flying_planes ||= []
     @planes ||= [] 
     @capacity ||= DEFAULT_CAPACITY
   end
@@ -28,6 +30,7 @@ class Airport
     raise "You can't take off in the middle of a storm!" if weather == 'stormy'
     plane.take_off
     plane.in_air
+    @flying_planes << plane
     @planes.delete(plane)
   end
 

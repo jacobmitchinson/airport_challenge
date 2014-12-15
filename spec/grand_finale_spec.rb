@@ -17,7 +17,14 @@ describe "the grand finale (last spec)" do
   it 'all planes should have status landed' do
     allow(airport).to receive(:weather).and_return('sunny')
     land_six_planes(airport)
-    expect(all_status_landed?(airport)).to be true
+    expect(all_planes_landed?(airport)).to be true
+  end
+
+  it 'all planes should have status flying' do 
+    allow(airport).to receive(:weather).and_return('sunny')
+    land_six_planes(airport)
+    all_planes_take_off(airport.all_planes, airport)
+    expect(all_planes_flying?(airport)).to be true 
   end
 
   # helper methods
@@ -27,14 +34,14 @@ describe "the grand finale (last spec)" do
   end
 
 
-  def all_status_landed?(airport)
+  def all_planes_landed?(airport)
     airport.all_planes.all? do 
       plane.status == "landed"
     end
   end
 
-  def all_status_flying?(airport)
-    airport.all_planes.all? do 
+  def all_planes_flying?(airport)
+    airport.flying_planes.all? do 
       plane.status == "flying"
     end
   end
