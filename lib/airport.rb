@@ -31,10 +31,6 @@ class Airport
     @planes.delete(plane)
   end
 
-  def planes_in_air
-    # create and in air method to track planes in the air 
-  end
-
   def full? 
     count_planes == @capacity
   end

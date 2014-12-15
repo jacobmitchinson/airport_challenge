@@ -26,7 +26,7 @@ describe Plane do
   end
 
   it 'changes its status to landed after landing' do 
-     airport = double(land: plane.landed)
+    airport = double(land: plane.landed)
     airport.land(plane)
     expect(plane.status).to eq "landed"
   end
